@@ -1,8 +1,10 @@
 from ultralytics import YOLO
+import supervision as sv
 
 class Tracker:
     def __init__(self, model_path):
-        self.model = YOLO(model_path)        
+        self.model = YOLO(model_path)
+        self.tracker = sv.ByteTrack()        
 
     def detect_frames(self, frames):
         batch_size = 20
@@ -14,4 +16,11 @@ class Tracker:
 
     def get_object_tracks(self, frames):
         detections = self.detect_frames(frames)
-        # TODO
+        for frame_num, detection in enumerate(detections):
+            # Print no. of detections in each frame
+            print(f"Frame {frame_num} — {len(detection)} detections")
+            cls_names = detection.names # {0:person, 1:ball,...}
+            cls_names_inv = {v:k for k,v in cls_names.items()} # {person:0, ball:1,...}
+
+            # Convert to supervision Detection format
+            detection_supervision = sv.Detections.from_ultralytics(detection)
