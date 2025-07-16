@@ -19,8 +19,13 @@ class Tracker:
         for frame_num, detection in enumerate(detections):
             # Print no. of detections in each frame
             print(f"Frame {frame_num} — {len(detection)} detections")
-            cls_names = detection.names # {0:person, 1:ball,...}
-            cls_names_inv = {v:k for k,v in cls_names.items()} # {person:0, ball:1,...}
+            cls_names = detection.names 
+            cls_names_inv = {v:k for k,v in cls_names.items()} 
 
             # Convert to supervision Detection format
             detection_supervision = sv.Detections.from_ultralytics(detection)
+
+            # Convert goal keeper to player object
+            for object_ind, class_id in enumerate(detection_supervision.class_id):
+                if cls_names[class_id] == 'goalkeeper':
+                    detection_supervision.class_id[object_ind] = cls_names_inv['person']
